@@ -1,0 +1,58 @@
+
+from flask import Flask, render_template, request, jsonify
+from keras.models import load_model
+
+from keras_preprocessing.image import load_img
+from keras_preprocessing.image import img_to_array
+from keras.applications.densenet import DenseNet121
+
+import tensorflow as tf
+from tensorflow import keras
+from skimage import transform, io
+import numpy as np
+import os
+from PIL import Image
+from datetime import datetime
+from keras.preprocessing import image
+from flask_cors import CORS
+
+app = Flask(__name__)
+
+# Load model
+model_densenet = load_model("model_densenet.h5")
+
+# Define class names
+class_names = ['daun_bercak', 'daun_gemini', 'daun_layu', 'daun_sehat']  
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'})
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'})
+
+    try:
+        # Preprocessing gambar
+        image = Image.open(file).resize((224, 224))  # Sesuaikan ukuran dengan model Anda
+        image = np.array(image) / 255.0
+        image = np.expand_dims(image, axis=0)
+
+        # Prediksi
+        predictions = model_densenet.predict(image)
+        predicted_class = class_names[np.argmax(predictions)]
+        confidence = np.max(predictions)
+
+        return jsonify({'class': predicted_class, 'confidence': float(confidence)})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+if __name__ =='__main__':
+	#app.debug = True
+	app.run(debug = True)
