@@ -11,6 +11,7 @@ from tensorflow import keras
 from skimage import transform, io
 import numpy as np
 import os
+import requests
 from PIL import Image
 from datetime import datetime
 from keras.preprocessing import image
@@ -26,7 +27,20 @@ upload_folder = 'static/upload_folder/'
 app.config['upload_folder'] = upload_folder
 allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'} #extension yang diperbolehkan 
 
+# URL ke file model Anda
+model_url = "https://drive.google.com/file/d/1fO4FQKV6XvgjzFz4BeNXjJZZWv4bQszj/view?usp=sharing"
+model_path = "model_densenet.h5"
 
+# Unduh model jika belum ada
+if not os.path.exists(model_path):
+    print("Downloading model file...")
+    response = requests.get(model_url)
+    with open(model_path, "wb") as f:
+        f.write(response.content)
+    print("Model downloaded.")
+
+# Load model setelah file tersedia
+model_densenet = load_model(model_path)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
