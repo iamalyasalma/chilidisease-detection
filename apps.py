@@ -29,7 +29,7 @@ allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'} #extension yang diperbolehkan
 
 # URL ke file model Anda
 model_url = "https://drive.google.com/file/d/1fO4FQKV6XvgjzFz4BeNXjJZZWv4bQszj/view?usp=sharing"
-model_path = "model_densenet.h5"
+model_path = "skripsi/model_densenet.h5"
 
 # Unduh model jika belum ada
 if not os.path.exists(model_path):
