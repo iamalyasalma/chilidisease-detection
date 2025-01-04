@@ -19,17 +19,10 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
-# Load model DenseNet 
-model_densenet = load_model("model_densenet.h5") 
-
-# Membuat tempat upload gambar
-upload_folder = 'static/upload_folder/'
-app.config['upload_folder'] = upload_folder
-allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'} #extension yang diperbolehkan 
 
 # URL ke file model Anda
 model_url = "https://drive.google.com/uc?id=1fO4FQKV6XvgjzFz4BeNXjJZZWv4bQszj"
-model_path = "https://drive.google.com/file/d/1fO4FQKV6XvgjzFz4BeNXjJZZWv4bQszj/view?usp=sharing
+model_path = "model_densenet.h5"
 
 # Unduh model jika belum ada
 if not os.path.exists(model_path):
@@ -41,6 +34,15 @@ if not os.path.exists(model_path):
 
 # Load model setelah file tersedia
 model_densenet = load_model(model_path)
+
+# Load model DenseNet 
+# model_densenet = load_model("model_densenet.h5") 
+
+# Membuat tempat upload gambar
+upload_folder = 'static/upload_folder/'
+app.config['upload_folder'] = upload_folder
+allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'} #extension yang diperbolehkan 
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
