@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Hotelier - Hotel HTML Template</title>
+    <title>Deteksi Daun Cabai</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -62,7 +62,7 @@
         <div class="container-fluid page-header mb-5 p-0" style="background-image: url(static/img/carousel-1.jpg);">
             <div class="container-fluid page-header-inner py-5">
                 <div class="container text-center pb-5">
-                    <h1 class="display-3 text-white mb-3 animated slideInDown">Chili Disease Detection</h1>
+                    <h1 class="display-3 text-white mb-3 animated slideInDown">Deteksi Penyakit Daun Cabai</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-center text-uppercase">
                             <!-- <li class="breadcrumb-item"><a href="#">Upload gambar untuk memprediksi</a></li> -->
@@ -85,7 +85,7 @@
                                     <div>
                                         <div class="position-relative mx-auto" style="max-width: 400px;">
                                             <input class="form-control py-3 ps-4 pe-5" type="file" placeholder="File" name="file" id="file" >
-                                            <p>File type: png, jpg, jpeg dan gif</p>
+                                            <p>Tipe file: png, jpg, jpeg dan gif</p>
                                         </div>
                                     </div>
                                 </div>
@@ -113,10 +113,7 @@
                                 <img src="{{img_path}}" alt="gambar prediksi" height="100%" width="100%"><br>
                             </div>
                             <div class="col">
-                                <!-- <h4> CNN add Model DenseNet</h4> -->
-                                <!-- <h4> Confidence : <i> {{confidenceexception}} </i></h4><br> -->
-                                <h4>Prediction : <i> {{prediction_densenet}} </i></h4><br>
-                                <p>Confidence : <i>{{confidence_densenet}}</i></p>
+                                <h4>Prediksi : <i> {{prediction_densenet}} </i></h4><br>
                                 <p>Description: <i>{{description_densenet}}</i></p>
                                 {% endif %}
                             </div>
