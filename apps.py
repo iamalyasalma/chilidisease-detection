@@ -84,7 +84,7 @@ def predict():
     # Preprocessing gamabar
     image_pil = Image.open(img_url).resize((224, 224)) #ukuran gambar untuk model DenseNet
     now = datetime.now()
-    predict_image_path = 'static/upload_folder/' + now.strftime("%d%m%y-%H%M%S") + ".png"
+    predict_image_path = 'static/upload_gambar/' + now.strftime("%d%m%y-%H%M%S") + ".png"
     image_pil.save(predict_image_path) #simpan gambar
 
     #convert gambar menjadi array numpy dan normalisasi
