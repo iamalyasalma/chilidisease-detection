@@ -68,7 +68,7 @@ def predict():
     
     for file in files:
         if file and allowed_file(file.filename):
-            file.save(os.path.join(app.config['upload_folder'], filename))
+            file.save(os.path.join(app.config['upload_gambar'], filename))
             success = True
         if not allowed_file(file.filename):
             return render_template("index.html", error=f"File type not allowed: {file.filename}")
@@ -78,7 +78,7 @@ def predict():
         resp.status_code = 400
         return resp
     
-    img_url = os.path.join(app.config['upload_folder'], filename)
+    img_url = os.path.join(app.config['upload_gambar'], filename)
 
 
     # Preprocessing gamabar
