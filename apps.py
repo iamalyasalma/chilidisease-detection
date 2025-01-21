@@ -39,7 +39,7 @@ model_densenet = load_model(model_path)
 # model_densenet = load_model("model_densenet.h5") 
 
 # Membuat tempat upload gambar
-upload_folder = 'static/upload_folder/'
+upload_folder = 'static/upload_gambar/'
 app.config['upload_folder'] = upload_folder
 allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'} #extension yang diperbolehkan 
 
