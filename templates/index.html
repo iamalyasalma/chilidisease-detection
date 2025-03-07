@@ -45,18 +45,35 @@
         
 
         <!-- Header Start -->
-        <div class="container-fluid bg-dark px-0">
+        <!-- <div class="container-fluid bg-dark px-0">
             <div class="row gx-0">
                 <div class="col-lg-3 bg-dark d-none d-lg-block">
-                    <a href="index.html" class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                    <a href="/templates/index.html" class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
                         <h1 class="m-0 text-primary text-uppercase">DenseNet</h1>
                     </a>
                 </div>
                 
             </div>
-        </div>
+        </div> -->
+        <nav class="navbar navbar-expand-lg bg-body-tertiary navbar bg-dark border-bottom border-body" data-bs-theme="dark">
+            <div class="container-fluid">
+                <h4><a class="navbar-brand" href="#">Cabai</h4></a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/">Deteksi</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/classification">Perbandingan Model</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
         <!-- Header End -->
-
 
         <!-- Page Header Start -->
         <div class="container-fluid page-header mb-5 p-0" style="background-image: url(static/img/carousel-1.jpg);">
@@ -94,6 +111,7 @@
                             <div class="col-md-5">
                                 <button class="btn btn-primary w-100" type="submit" value="Upload">Prediksi</button>
                             </div>
+                           
                         </div>
                     </div>
                 </form>

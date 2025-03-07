@@ -50,10 +50,16 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 
+
+
 # Tampilan prediksi
 @app.route('/', methods=['GET', 'POST'])
 def prediksi():
     return render_template("index.html")
+
+@app.route("/classification", methods = ['GET', 'POST'])
+def classification():
+	return render_template("classification.html")
 
 @app.route('/submit', methods=['POST'])
 def predict():
