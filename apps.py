@@ -22,11 +22,17 @@ def download_model():
         print("⬇️ Downloading model from Google Drive...")
         response = requests.get(MODEL_URL, allow_redirects=True)
         if response.status_code == 200:
-            # Pastikan file bukan HTML
-            if response.text.startswith("<!DOCTYPE html>"):
-                raise ValueError("⚠️ Gagal download model — Google Drive mengirim halaman HTML, bukan file .h5")
+            content = response.content
+
+            # ✅ Cek apakah file hasil download benar-benar HDF5, bukan HTML
+            if content[:4] != b"\x89HDF":  # HDF5 signature
+                # Coba simpan dulu agar bisa dicek isi HTML-nya kalau error
+                with open("download_error.html", "wb") as f:
+                    f.write(content)
+                raise ValueError("⚠️ File yang diunduh bukan file .h5 yang valid! Cek file download_error.html")
+
             with open(MODEL_PATH, "wb") as f:
-                f.write(response.content)
+                f.write(content)
             print("✅ Model downloaded successfully!")
         else:
             raise ValueError(f"⚠️ Download failed with status code {response.status_code}")
