@@ -1,5 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from keras.models import load_model
+from keras_preprocessing.image import load_img, img_to_array
+import tensorflow as tf
+from skimage import transform, io
 import numpy as np
 import os
 import requests
@@ -7,112 +10,140 @@ from PIL import Image
 from datetime import datetime
 from flask_cors import CORS
 
-# === Inisialisasi Flask ===
 app = Flask(__name__)
 CORS(app)
 
-# === Konfigurasi Path Model ===
 # URL ke file model Anda
 model_url = "https://drive.google.com/uc?export=download&id=12-Mmi8O2zC4iTRyVhHe6aPFZuRjNViYZ"
-model_path = "model_densenet121.h5"
+model_path = "model_densenet.h5"
 
-# === Unduh Model Jika Belum Ada ===
-if not os.path.exists(MODEL_PATH):
-    print("📥 Mengunduh model dari Hugging Face...")
+# --- Cek dan download model hanya kalau belum ada ---
+def download_model():
+    if not os.path.exists(model_path):
+        print("⬇️ Mengunduh model dari Google Drive...")
+        response = requests.get(model_url, allow_redirects=True)
+        if response.status_code == 200:
+            content = response.content
+
+            # ✅ Pastikan file valid (bukan halaman HTML error)
+            if b'HDF' not in content[:100]:
+                with open("download_error.html", "wb") as f:
+                    f.write(content)
+                raise ValueError("⚠️ File yang diunduh bukan file .h5 valid. Cek download_error.html!")
+
+            with open(model_path, "wb") as f:
+                f.write(content)
+            print("✅ Model berhasil diunduh!")
+        else:
+            raise ValueError(f"⚠️ Gagal download model (status code {response.status_code})")
+
+
+# --- Load model dengan aman ---
+def load_densenet():
+    global model_densenet
     try:
-        response = requests.get(MODEL_URL, stream=True)
-        response.raise_for_status()
-        with open(MODEL_PATH, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        print("✅ Model berhasil diunduh!")
-        print("📦 Ukuran file:", os.path.getsize(MODEL_PATH), "bytes")
+        if not os.path.exists(model_path):
+            download_model()
+        print("🧠 Memuat model...")
+        model_densenet = load_model(model_path)
+        print("✅ Model berhasil dimuat!")
     except Exception as e:
-        print(f"❌ Gagal mengunduh model: {e}")
+        print(f"❌ Gagal memuat model: {e}")
+        model_densenet = None
 
-# === Load Model ===
-print("🧠 Memuat model DenseNet...")
-try:
-    model_densenet = load_model(MODEL_PATH)
-    print("✅ Model berhasil dimuat!")
-except Exception as e:
-    print(f"❌ Gagal memuat model: {e}")
-    model_densenet = None
 
-# === Folder Upload ===
-UPLOAD_FOLDER = 'static/upload_gambar'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+# Panggil saat startup
+model_densenet = None
+load_densenet()
+
+# Membuat tempat upload gambar
+upload_folder = 'static/upload_gambar'
+if not os.path.exists(upload_folder):
+    os.makedirs(upload_folder)
+app.config['upload_gambar'] = upload_folder
+allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 
-# === Route Halaman Utama ===
-@app.route('/', methods=['GET'])
-def home():
+# Tampilan utama
+@app.route('/', methods=['GET', 'POST'])
+def prediksi():
     return render_template("index.html")
 
 
-# === Route Halaman Klasifikasi ===
-@app.route("/classification", methods=['GET'])
+@app.route("/classification", methods=['GET', 'POST'])
 def classification():
     return render_template("classification.html")
 
 
-# === Route Prediksi ===
 @app.route('/submit', methods=['POST'])
 def predict():
-    if model_densenet is None:
-        return render_template("index.html", error="Model belum siap. Coba refresh halaman.")
+    try:
+        if model_densenet is None:
+            return render_template("index.html", error="Model belum siap. Coba refresh halaman.")
 
-    if 'file' not in request.files:
-        return render_template("index.html", error="Tidak ada file yang diunggah.")
+        if 'file' not in request.files:
+            return render_template("index.html", error="Tidak ada file yang dikirim.")
 
-    file = request.files['file']
-    if file.filename == '':
-        return render_template("index.html", error="Tidak ada file yang dipilih.")
+        files = request.files.getlist('file')
+        filename = "temp_image.png"
+        success = False
 
-    if not allowed_file(file.filename):
-        return render_template("index.html", error="Tipe file tidak didukung. Harap unggah JPG/PNG.")
+        for file in files:
+            if file.filename == '':
+                return render_template("index.html", error="Tidak ada file yang dipilih.")
 
-    # Simpan file upload
-    now = datetime.now()
-    filename = now.strftime("%d%m%y-%H%M%S") + ".png"
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(filepath)
+        for file in files:
+            if file and allowed_file(file.filename):
+                file.save(os.path.join(app.config['upload_gambar'], filename))
+                success = True
+            else:
+                return render_template("index.html", error=f"File tidak diizinkan: {file.filename}")
 
-    # Preprocessing gambar
-    img = Image.open(filepath).resize((224, 224))
-    img_array = np.array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
+        if not success:
+            return render_template("index.html", error="Gagal upload file.")
 
-    # Prediksi
-    predictions = model_densenet.predict(img_array)
-    class_names = ['Daun Bercak', 'Daun Gemini', 'Daun Layu', 'Daun Sehat']
-    prediction_class = class_names[np.argmax(predictions)]
-    confidence = f"{np.max(predictions) * 100:.2f}%"
+        img_url = os.path.join(app.config['upload_gambar'], filename)
 
-    class_description = {
-        'Daun Bercak': 'Daun ini memiliki bercak akibat infeksi jamur atau bakteri.',
-        'Daun Gemini': 'Daun ini menunjukkan gejala virus Gemini yang menyebabkan warna kuning.',
-        'Daun Layu': 'Daun ini mengalami kelayuan akibat infeksi bakteri atau kekurangan air.',
-        'Daun Sehat': 'Daun ini sehat tanpa tanda-tanda penyakit.'
-    }
+        # --- Preprocessing gambar ---
+        image_pil = Image.open(img_url).resize((224, 224))
+        now = datetime.now()
+        predict_image_path = f'static/upload_gambar/{now.strftime("%d%m%y-%H%M%S")}.png'
+        image_pil.save(predict_image_path)
 
-    description = class_description.get(prediction_class, "Deskripsi tidak tersedia.")
+        image_array = np.array(image_pil) / 255.0
+        image_array = np.expand_dims(image_array, axis=0)
 
-    return render_template(
-        "index.html",
-        img_path=filepath,
-        prediction_densenet=prediction_class,
-        confidence_densenet=confidence,
-        description_densenet=description
-    )
+        # --- Prediksi ---
+        class_description = {
+            'Daun Bercak': 'Daun ini memiliki bercak-bercak yang disebabkan oleh infeksi jamur atau bakteri.',
+            'Daun Gemini': 'Daun ini menunjukkan gejala virus Gemini yang menyebabkan warna kuning pada daun.',
+            'Daun Layu': 'Daun ini mengalami kelayuan yang biasanya disebabkan oleh infeksi bakteri atau kekurangan air.',
+            'Daun Sehat': 'Daun ini sehat tanpa tanda-tanda penyakit atau kerusakan.',
+        }
+
+        prediction_array = model_densenet.predict(image_array)
+        class_names = ['Daun Bercak', 'Daun Gemini', 'Daun Layu', 'Daun Sehat']
+
+        prediction_class = class_names[np.argmax(prediction_array)]
+        confidence = '{:.2f}%'.format(100 * np.max(prediction_array))
+        description = class_description.get(prediction_class, 'Deskripsi tidak tersedia.')
+
+        return render_template(
+            "index.html",
+            img_path=predict_image_path,
+            prediction_densenet=prediction_class,
+            confidence_densenet=confidence,
+            description_densenet=description
+        )
+
+    except Exception as e:
+        print(f"❌ ERROR di /submit: {e}")
+        return render_template("index.html", error=f"Terjadi kesalahan: {str(e)}")
 
 
-# === Jalankan Flask ===
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(debug=True)
