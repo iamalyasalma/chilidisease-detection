@@ -24,9 +24,8 @@ def download_model():
         if response.status_code == 200:
             content = response.content
 
-            # ✅ Cek apakah file hasil download benar-benar HDF5, bukan HTML
-            if content[:4] != b"\x89HDF":  # HDF5 signature
-                # Coba simpan dulu agar bisa dicek isi HTML-nya kalau error
+            # ✅ Pastikan file hasil download benar-benar HDF5, bukan HTML error page
+            if content[:4] != b"\x89HDF" and not content.startswith(b'\x89HDF'):
                 with open("download_error.html", "wb") as f:
                     f.write(content)
                 raise ValueError("⚠️ File yang diunduh bukan file .h5 yang valid! Cek file download_error.html")
@@ -82,6 +81,15 @@ def predict():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# --- Halaman utama (biar gak error 404) ---
+@app.route('/')
+def home():
+    return jsonify({
+        "message": "✅ API Deteksi Penyakit Daun Cabai siap digunakan!",
+        "usage": "Gunakan endpoint /submit dengan metode POST dan file gambar (form-data)."
+    })
 
 
 # --- Jalankan aplikasi ---
