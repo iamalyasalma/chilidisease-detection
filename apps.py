@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 # URL ke file model Anda (pastikan ini versi uc?id=...)
-MODEL_URL = "https://drive.google.com/uc?id=13tPaNC0RtyDty1HPuaihcmHaGYUFzsqK"
+MODEL_URL = "https://drive.google.com/uc?export=download&id=13tPaNC0RtyDty1HPuaihcmHaGYUFzsqK"
 MODEL_PATH = "model_densenet.h5"
 model_densenet = None  # model belum dimuat saat startup
 
