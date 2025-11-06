@@ -12,9 +12,9 @@ app = Flask(__name__)
 CORS(app)
 
 # === Konfigurasi Path Model ===
-# Ganti link di bawah dengan link model kamu di Hugging Face
-MODEL_URL = "https://huggingface.co/halloalya/chili-leaf-disease-model/resolve/a901ebdc537c835f3321cccffb3e14323a76c6ce/model_densenet.h5"
-MODEL_PATH = "model_densenet.h5"
+# URL ke file model Anda
+model_url = "https://drive.google.com/uc?export=download&id=12-Mmi8O2zC4iTRyVhHe6aPFZuRjNViYZ"
+model_path = "model_densenet121.h5"
 
 # === Unduh Model Jika Belum Ada ===
 if not os.path.exists(MODEL_PATH):
