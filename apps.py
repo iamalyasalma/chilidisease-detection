@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from keras.models import load_model
 import numpy as np
 import os
-import gdown
+import requests
 from PIL import Image
 from datetime import datetime
 from flask_cors import CORS
@@ -12,14 +12,20 @@ app = Flask(__name__)
 CORS(app)
 
 # === Konfigurasi Path Model ===
-MODEL_URL = "https://drive.google.com/uc?id=1fO4FQKV6XvgjzFz4BeNXjJZZWv4bQszj"
+# Ganti link di bawah dengan link model kamu di Hugging Face
+MODEL_URL = "https://huggingface.co/halloalya/chili-leaf-disease-model/resolve/a901ebdc537c835f3321cccffb3e14323a76c6ce/model_densenet.h5"
 MODEL_PATH = "model_densenet.h5"
 
 # === Unduh Model Jika Belum Ada ===
 if not os.path.exists(MODEL_PATH):
-    print("📥 Mengunduh model dari Google Drive...")
+    print("📥 Mengunduh model dari Hugging Face...")
     try:
-        gdown.download(MODEL_URL, MODEL_PATH, quiet=False, fuzzy=True)
+        response = requests.get(MODEL_URL, stream=True)
+        response.raise_for_status()
+        with open(MODEL_PATH, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
         print("✅ Model berhasil diunduh!")
         print("📦 Ukuran file:", os.path.getsize(MODEL_PATH), "bytes")
     except Exception as e:
