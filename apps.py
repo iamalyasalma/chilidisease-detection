@@ -14,8 +14,8 @@ app = Flask(__name__)
 CORS(app)
 
 # URL ke file model Anda
-model_url = "https://drive.google.com/uc?export=download&id=12-Mmi8O2zC4iTRyVhHe6aPFZuRjNViYZ"
-model_path = "model_densenet.h5"
+model_url = "https://drive.google.com/uc?export=download&id=1mswu1f-QI1Nhf3k86vA80fcimKXlFntf"
+model_path = "model_densenet_fix.keras"
 
 # --- Cek dan download model hanya kalau belum ada ---
 def download_model():
