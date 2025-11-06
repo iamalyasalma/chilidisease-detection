@@ -9,7 +9,9 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Path model lokal (karena sudah di repo GitHub)
+MODEL_URL = "https://drive.google.com/uc?export=download&id=13tPaNC0RtyDty1HPuaihcmHaGYUFzsqK"
 MODEL_PATH = "model_densenet.h5"
+
 
 # Load model saat aplikasi mulai
 print("🧠 Memuat model DenseNet...")
