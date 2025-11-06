@@ -21,7 +21,7 @@ app = Flask(__name__)
 
 
 # URL ke file model Anda
-model_url = "https://drive.google.com/file/d/1fO4FQKV6XvgjzFz4BeNXjJZZWv4bQszj/view?usp=sharing"
+model_url = "https://drive.google.com/uc?id=1fO4FQKV6XvgjzFz4BeNXjJZZWv4bQszj"
 model_path = "model_densenet.h5"
 
 # Unduh model jika belum ada
